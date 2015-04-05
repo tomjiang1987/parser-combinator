@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="gen.js"></script>
+		<style type="text/css">
+		
+		
+		</style>
+	</head>
+	
+	<body>
+	
+
+
+		<div>
+			  
+		</div>
+	
+	
+<script type="text/javascript">
+	function calculate(src) {
+	    var NUM = gen.NUM;
+	    var EOF = gen.EOF;
+	    var CONCAT = gen.CONCAT;
+	    var OR = gen.OR;
+	    var LIST = gen.LIST;
+	    var $ = gen.$;
+	
+	    var grammar = {
+	        'Arithmetic' : CONCAT($('Expr'), EOF),
+	        'Expr' : LIST($('Term'), $('TermOp'), true),
+	        'Term' : LIST($('Factor'), $('FactorOp'), true),
+	        'TermOp' : OR('+', '-'),
+	        'Factor' : OR($('P-Expr'), $('Num')),
+	        'FactorOp' : OR('*', '/'),
+	        'P-Expr' : CONCAT('(', $('Expr'), ')'),
+	        'Num' : NUM()
+	    };
+	
+	    var actions = {
+	        'Num' : function(r) { r.extra = parseFloat(r.text()); },
+	        'Factor' : function(r) { r.extra = r.children[0].extra; },
+	        'Term' : function(r) { 
+	            r.extra = r.children[0].extra;
+	            for (var i = 1; i < r.children.length; i += 2) {
+	                var factor_op = r.children[i];
+	                var factor = r.children[i+1];
+	                if ('*' == factor_op.text()) {
+	                    r.extra *= factor.extra;
+	                }
+	                else if ('/' == factor_op.text()) {
+	                    r.extra /= factor.extra;
+	                }
+	            }
+	        },
+	        'Expr' : function(r) {
+	            r.extra = r.children[0].extra;
+	            for (var i = 1; i < r.children.length; i += 2) {
+	                var factor_op = r.children[i];        
+	                var factor = r.children[i+1];
+	                if ('+' == factor_op.text()) {
+	                    r.extra += factor.extra;
+	                }
+	                else if ('-' == factor_op.text()) {
+	                    r.extra -= factor.extra;
+	                }
+	            }
+	        },
+	        'P-Expr' : function(r) { r.extra = r.children[1].extra; },
+	        'Arithmetic' : function(r) { r.extra = r.children[0].extra; }
+	    }
+	
+	    var parser = gen.create(grammar, actions);
+	    var ast = parser.parse('Arithmetic', src);
+	
+	    if (gen.S.OK == ast.status) {
+	        console.log(src + ' = ' + ast.extra);
+	    }
+	    else {
+	        console.error('Invalid expression');
+	    }
+	}
+	
+	</script>
+  </body>
+</html>
