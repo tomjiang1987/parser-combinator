@@ -31,9 +31,7 @@ gen.P = {
           OPT_LIST:'OPT_LIST',
           EN_LIST:'EN_LIST',
           REPEAT:'REPEAT',
-          OPT:'OPT',
-          RULE:'RULE', 
-          PERMU:'PERMU'
+          OPT:'OPT'
 	};
 	
 function Position(index,line,column){
